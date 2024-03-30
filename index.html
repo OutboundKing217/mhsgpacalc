@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPA Calculator</title>
+  <style>
+    body { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      margin: 0; 
+      background-color: #333; 
+    }
+    .calculator { 
+      background-color: #fff; 
+      padding: 20px; 
+      border-radius: 10px; 
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+      width: 600px; 
+      text-align: center; 
+      margin: auto; 
+    }
+    .logo { 
+      margin-bottom: 20px; 
+      margin-top: 20px; 
+    }
+    .logo img { 
+      max-height: 50px; 
+      margin: 0 10px; 
+    }
+    .input-box { 
+      margin-bottom: 10px; 
+    }
+    .title { 
+      font-size: 18px; 
+      font-weight: bold; 
+      margin-bottom: 10px; 
+    }
+    .subtitle { 
+      font-size: 24px; 
+      margin-bottom: 10px; 
+    }
+    .names { 
+      font-size: 18px; 
+      text-align: center; 
+      margin-bottom: 20px; 
+    }
+    .calculator-text-box { 
+      border: 4px solid #000; 
+      padding: 0.5px; 
+      display:block; 
+    }
+    .home-button { 
+      position: fixed; 
+      bottom: 20px; 
+      right: 20px; 
+      padding: 20px; 
+      display: none; 
+    }
+    .hidden { 
+      display: none; 
+    }
+    .input-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .input-box label {
+      width: 300px; /* Adjust the width as needed */
+      text-align: right;
+      margin-right: 10px; /* Adjust the margin as needed */
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="calculator-text-box">
+      <h1>GPA Calculator</h1>
+    </div>
+    <div class="logo">
+      <img src="marquette_logo.png" alt="Marquette High School Logo">
+      <img src="rockwood_logo.png" alt="Rockwood School District Logo">
+    </div>
+    <div class="subtitle">Intro to Programming - FBLA</div>
+    <div class="title">Chinta, Akurati, Soupramanien</div>
+    <div class="names"></div>
+    <div id="schoolIdSection">
+      <label for="schoolId">What is your School ID?</label>
+      <input type="text" id="schoolId">
+      <button onclick="proceedToGpaType()">Next</button>
+    </div>
+
+    <div id="weightedClasses"></div>
+    <div id="unweightedClasses"></div>
+
+    <div id="gpaTypeSection" class="hidden">
+      <label for="gpaType">What type of GPA would you like to calculate?</label>
+      <select id="gpaType">
+        <option value="weighted">Weighted GPA</option>
+        <option value="unweighted">Unweighted GPA</option>
+        <option value="cumulative">Cumulative GPA</option>
+      </select>
+      <button onclick="proceedToCalculator()">Next</button>
+    </div>
+
+    <div id="numWeightedClassesSection" class="hidden">
+      <label for="numWeightedClasses">How many weighted classes do you take?</label>
+      <input type="number" id="numWeightedClasses">
+      <button onclick="createWeightedGradeInputs()">Next</button>
+    </div>
+    
+    <div id="numUnweightedClassesSection" class="hidden">
+      <label for="numUnweightedClasses">How many unweighted classes do you take?</label>
+      <input type="number" id="numUnweightedClasses">
+      <button onclick="createUnweightedGradeInputs()">Next</button>
+    </div>
+    
+    <div id="gradeInputs"></div>
+
+    <div id="cumulativeGPASection" class="hidden">
+      <div class="input-box">
+        <label for="numWeightedClassesCumulative" class="input-label">How many weighted classes do you take?</label>
+        <input type="number" id="numWeightedClassesCumulative">
+      </div>
+      <div class="input-box">
+        <label for="numUnweightedClassesCumulative" class="input-label">How many unweighted classes do you take?</label>
+        <input type="number" id="numUnweightedClassesCumulative">
+      </div>
+      <button onclick="proceedToCumulativeGpa()">Next</button> 
+    </div>
+    <div id="results"></div>
+    <button class="home-button" onclick="goToHomePage()">Home</button>
+  </div>
+
+  <script>
+    function proceedToGpaType() {
+      const schoolId = document.getElementById("schoolId").value.trim();
+      if (schoolId === "") {
+        alert("Please enter your School ID.");
+        return;
+      }
+      document.getElementById("schoolIdSection").style.display = "none";
+      document.getElementById("gpaTypeSection").style.display = "block";
+      showHomeButton();
+    }
+
+    function proceedToCalculator() {
+      const gpaType = document.getElementById("gpaType").value;
+      if (gpaType === "weighted") {
+        document.getElementById("gpaTypeSection").style.display = "none";
+        document.getElementById("numWeightedClassesSection").style.display = "block";
+      } else if (gpaType === "unweighted") {
+        document.getElementById("gpaTypeSection").style.display = "none";
+        document.getElementById("numUnweightedClassesSection").style.display = "block";
+      } else {
+        document.getElementById("gpaTypeSection").style.display = "none";
+        document.getElementById("cumulativeGPASection").style.display = "block";
+      }
+      showHomeButton();
+    }
+
+    function createWeightedGradeInputs() {
+      const numWeightedClasses = parseInt(document.getElementById("numWeightedClasses").value);
+      const gradeInputs = document.getElementById("gradeInputs");
+      gradeInputs.innerHTML = "";
+      for (let i = 1; i <= numWeightedClasses; i++) {
+        gradeInputs.innerHTML += `<div class="input-box"><label for="weightedGrade${i}">Weighted Class ${i} Grade:</label><input type="text" id="weightedGrade${i}"></div>`;
+      }
+      gradeInputs.innerHTML += "<button onclick='calculateWeightedGPA()'>Calculate GPA</button>";
+      document.getElementById("numWeightedClassesSection").style.display = "none";
+      showHomeButton();
+    }
+
+    function createUnweightedGradeInputs() {
+      const numUnweightedClasses = parseInt(document.getElementById("numUnweightedClasses").value);
+      const gradeInputs = document.getElementById("gradeInputs");
+      gradeInputs.innerHTML = "";
+      for (let i = 1; i <= numUnweightedClasses; i++) {
+        gradeInputs.innerHTML += `<div class="input-box"><label for="unweightedGrade${i}">Unweighted Class ${i} Grade:</label><input type="text" id="unweightedGrade${i}"></div>`;
+      }
+      gradeInputs.innerHTML += "<button onclick='calculateUnweightedGPA()'>Calculate GPA</button>";
+      document.getElementById("numUnweightedClassesSection").style.display = "none";
+      showHomeButton();
+    }
+
+    function proceedToCumulativeGpa() {
+      const numWeightedClasses = parseInt(document.getElementById("numWeightedClassesCumulative").value);
+      const numUnweightedClasses = parseInt(document.getElementById("numUnweightedClassesCumulative").value);
+      let totalWeightedPoints = 0;
+      let totalUnweightedPoints = 0;
+      if (isNaN(numWeightedClasses) || isNaN(numUnweightedClasses) || numWeightedClasses < 0 || numUnweightedClasses < 0) {
+        alert("Please enter valid numbers for the number of classes.");
+        return;
+      }
+      const gradeInputs = document.getElementById("gradeInputs");
+      gradeInputs.innerHTML = "";
+      // Display input fields for weighted classes
+      for (let i = 1; i <= numWeightedClasses; i++) {
+        gradeInputs.innerHTML += `<div class="input-box"><label for="weightedGrade${i}">Weighted Class ${i} Grade:</label><input type="text" id="weightedGrade${i}"></div>`;
+      }
+      // Display input fields for unweighted classes
+      const unweightedGradeInputs = document.createElement("div");
+      unweightedGradeInputs.id = "unweightedGradeInputs";
+      for (let i = 1; i <= numUnweightedClasses; i++) {
+        unweightedGradeInputs.innerHTML += `<div class="input-box"><label for="unweightedGrade${i}">Unweighted Class ${i} Grade:</label><input type="text" id="unweightedGrade${i}"></div>`;
+      }
+      gradeInputs.appendChild(unweightedGradeInputs);
+      // Show the "Calculate GPA" button
+      gradeInputs.innerHTML += "<button onclick='calculateCumulativeGPA()'>Calculate GPA</button>";
+      // Hide the cumulative GPA section
+      document.getElementById("cumulativeGPASection").style.display = "none";
+      showHomeButton();
+    }
+
+    function calculateUnweightedGPA() {
+      const numUnweightedClasses = parseInt(document.getElementById("numUnweightedClasses").value);
+      let totalPoints = 0,
+          totalCredits = 0;
+      for (let i = 1; i <= numUnweightedClasses; i++) {
+        const grade = document.getElementById(`unweightedGrade${i}`).value.toUpperCase();
+        const points = {"A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "F": 0.0}[grade];
+        if (points === undefined) {
+          alert(`Invalid grade entered for Unweighted Class ${i}`);
+          return;
+        }
+        totalPoints += points;
+        totalCredits += 1;
+      }
+      const unweightedGPA = (totalPoints / totalCredits).toFixed(2);
+      document.getElementById("results").innerHTML = `<p><strong>Unweighted GPA:</strong> ${unweightedGPA}</p>`;
+      showHomeButton();
+    }
+
+    function calculateWeightedGPA() {
+      const numWeightedClasses = parseInt(document.getElementById("numWeightedClasses").value);
+      let totalPoints = 0,
+          totalCredits = 0;
+      for (let i = 1; i <= numWeightedClasses; i++) {
+        const grade = document.getElementById(`weightedGrade${i}`).value.toUpperCase();
+        const points = {"A": 5.0, "B": 4.0, "C": 3.0, "D": 2.0, "F": 1.0}[grade];
+        if (points === undefined) {
+          alert(`Invalid grade entered for Weighted Class ${i}`);
+          return;
+        }
+        totalPoints += points;
+        totalCredits++; // Assuming each weighted class has one credit
+      }
+      const weightedGPA = (totalPoints / totalCredits).toFixed(2);
+      document.getElementById("results").innerHTML = `<p><strong>Weighted GPA:</strong> ${weightedGPA}</p>`;
+      showHomeButton();
+    }
+
+    function calculateCumulativeGPA() {
+      const numWeightedClasses = parseInt(document.getElementById("numWeightedClassesCumulative").value);
+      const numUnweightedClasses = parseInt(document.getElementById("numUnweightedClassesCumulative").value);
+      let totalWeightedPoints = 0,
+          totalUnweightedPoints = 0;
+      // Calculate total points for weighted classes
+      for (let i = 1; i <= numWeightedClasses; i++) {
+        const grade = document.getElementById(`weightedGrade${i}`).value.toUpperCase();
+        const points = {"A": 5.0, "B": 4.0, "C": 3.0, "D": 2.0, "F": 1.0}[grade];
+        if (points === undefined) {
+          alert(`Invalid grade entered for Weighted Class ${i}`);
+          return;
+        }
+        totalWeightedPoints += points;
+      }
+      // Calculate total points for unweighted classes
+      for (let i = 1; i <= numUnweightedClasses; i++) {
+        const grade = document.getElementById(`unweightedGrade${i}`).value.toUpperCase();
+        const points = {"A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "F": 0.0}[grade];
+        if (points === undefined) {
+          alert(`Invalid grade entered for Unweighted Class ${i}`);
+          return;
+        }
+        totalUnweightedPoints += points;
+      }
+      // Calculate cumulative GPA
+      const totalPoints = totalWeightedPoints + totalUnweightedPoints;
+      const totalCredits = numWeightedClasses + numUnweightedClasses;
+      const cumulativeGPA = (totalPoints / totalCredits).toFixed(2);
+      document.getElementById("results").innerHTML = `<p><strong>Cumulative GPA:</strong> ${cumulativeGPA}</p>`;
+      showHomeButton();
+    }
+
+    function showHomeButton() {
+      const homeButton = document.querySelector(".home-button");
+      if (homeButton) {
+        homeButton.style.display = "block";
+      }
+    }
+
+    function goToHomePage() {
+      window.location.href = "index.html";
+    }
+    const express = require('express');
+const bodyParser = require('body-parser');
+const sql = require('mssql');
+
+const app = express();
+const port = 3000;
+
+// Middleware
+app.use(bodyParser.json());
+
+// SQL Server configuration
+const config = {
+  user: 'your_username',
+  password: 'your_password',
+  server: 'your_server',
+  database: 'your_database',
+  options: {
+    encrypt: true, // Use this if you're on Windows Azure
+  },
+  pool: {
+    max: 10,
+    min: 0,
+    idleTimeoutMillis: 30000,
+  },
+};
+
+// API endpoint to save GPA data
+app.post('/api/saveGPA', async (req, res) => {
+  const { studentId, gpaType, gpaValue } = req.body;
+
+  try {
+    // Connect to SQL Server
+    await sql.connect(config);
+
+    // Save GPA data to the database
+    const result = await sql.query`INSERT INTO GPA (StudentID, GPAType, GPAValue) VALUES (${studentId}, ${gpaType}, ${gpaValue})`;
+
+    res.json({ success: true, message: 'GPA saved successfully' });
+  } catch (err) {
+    if (err.number === 2627) { // Check for primary key violation error
+      console.error('Error saving GPA:', err);
+      res.status(400).json({ success: false, message: 'Student ID already exists' });
+    } else {
+      console.error('Error saving GPA:', err);
+      res.status(500).json({ success: false, message: 'Error saving GPA' });
+    }
+  } finally {
+    // Close the connection
+    await sql.close();
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+  </script>
+</body>
+</html>
